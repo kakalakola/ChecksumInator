@@ -12,12 +12,6 @@
                      ;
       }size;
 
-      //struct Checksum{
-      //  unsigned int header=0
-      //               ,actual=0
-      //               ;
-      //}checksum;
-
       struct Region{
         unsigned int code=0;
         std::string name="";
@@ -29,8 +23,6 @@
       char segaHeader[9]
            ;
 
-      //bool dataChanged=false;
-
       unsigned int reservedWord=0
 
         ,productCode=0
@@ -38,8 +30,6 @@
         ;
 
       std::string console;
-
-      //std::vector<unsigned char> data;
 
       Sega8Bit(char* fileName,sega8 inSystem){
 

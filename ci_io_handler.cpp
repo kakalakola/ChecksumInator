@@ -19,11 +19,8 @@ void printUsage(std::string appName){
 bool checkStrings(char* inChar,const std::vector<std::string>* strings){
   //It might be more economical to convert char* to an std::string in this function
   std::string inString=inChar;
-  //std::cout<<"Checking out stuff with strings\n";
-  //std::cout<<"inString: "<<inString<<"\n";
   bool result=false;
   for(auto string:*strings){
-    //std::cout<<"Processing "<<console<<"\n";
     if((inString).compare(string)==0){
       result=true;
     }

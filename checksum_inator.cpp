@@ -16,10 +16,8 @@ int main(int argc,char* argv[]){
 
     if(checkStrings(argv[1],&segagen)){
       std::cout<<"Processing Genesis/Mega Drive ROM: "<<argv[2]<<"\n";
-      //Genesis genesis(argv[2],GENESIS);
     }else if((strcmp(argv[1],"32x")==0)){
       std::cout<<"Processing 32X ROM: "<<argv[2]<<"\n";
-      //Genesis s32x(argv[2],_32X);
     }else if(checkStrings(argv[1],&snes)){
       std::cout<<"Processing Super NES/Super Famicom ROM: "<<argv[2]<<"\n";
     }else if((strcmp(argv[1],"gb")==0)){
