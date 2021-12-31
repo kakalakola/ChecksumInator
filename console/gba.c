@@ -4,7 +4,6 @@
 #define GBA_NINTENDO_LOGO_START 4
 #define GBA_NINTENDO_LOGO_SIZE 156
 
-
 extern void writeFile(char* fileName);
 extern unsigned char* data;
 extern int validROM,dataChanged;
