@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include "sega8.h"
+#include "structs.h"
 
 #define CONSOLE_DEFINITION 5
 
 extern void writeFile(char* fileName);
+
+extern struct romStat rom;
 extern unsigned char* data;
 extern long long unsigned int dataSize;
-extern int validROM,dataChanged;
 
 void calculateROMChecksumSEGA8(int size,int headerBase);
 int checkSEGA8Header(int headerBase);
@@ -34,82 +36,70 @@ unsigned int headerLocations[]={0x7ff0,0x3ff0,0x1ff0}
             ,baseHeaderAddress=0
             ;
 
-unsigned char consoleDefKey[]={3,4,5,6,7};
-char* consoleDefValue[]={"Mark III","Master System, export","Game Gear, Japan","Game Gear, export","Game Gear, export (alt)"};
+//Region code:
+//  3 - Mark III
+//  4 - Master System
+//  5 - Game Gear, Japan
+//  6 - Game Gear, export
+//  7 - Game Gear, export (alt)
 
 void processSEGA8ROM(char* inFile,char* outFile){
   unsigned char sizeCode=0
                ,regionCode=0
                ;
 
-  validROM=0;
-  for(int i=0;i<3 && validROM==0;i++){
+  for(int i=0;i<3 && rom.valid==0;i++){
     baseHeaderAddress=headerLocations[i];
+
     sizeCode=data[baseHeaderAddress+0xf]&0xf;
     regionCode=data[baseHeaderAddress+0xf]>>4;
 
-    for(int j=0;j<5;j++){
-      if(consoleDefKey[j]==regionCode){
-        if(j==0){
-          validROM=2;
-          break;
-        }else if(j>1){
-          validROM=3;
-          break;
-        }
-        if(sizeDef[sizeCode]!=0){
-          validROM=1;
-          break;
-        }
-        break;
-      }
+    if(regionCode>=3 && regionCode<=7 && sizeDef[sizeCode]!=0){
+      break;
     }
   }
 
-  if(validROM==1 && checkSEGA8Header(baseHeaderAddress)==0){
+  if(regionCode==3 && checkSEGA8Header(baseHeaderAddress)==0){
+    printf("This is a Japanese Mark III ROM. There's no checksum to calculate\n");
+  }else if(regionCode==4){
     printf("Processing Master System ROM\n");
     calculateROMChecksumSEGA8(sizeDef[sizeCode],baseHeaderAddress);
     writeFile(outFile);
-  }else if(validROM==2){
-    printf("This is a Japanese Mark III ROM. There's no checksum to calculate\n");
-  }else if(validROM==3 && checkSEGA8Header(baseHeaderAddress)==0){
-    printf("This is a Game Gear ROM. There's no checksum to calculate\n");
+  }else if(regionCode==5 && checkSEGA8Header(baseHeaderAddress)==0){
+    printf("This is a Japanese Game Gear ROM. There's no checksum to calculate\n");
+  }else if(regionCode==6 && checkSEGA8Header(baseHeaderAddress)==0){
+    printf("This is a Non-Japanese Game Gear ROM. There's no checksum to calculate\n");
+  }else if(regionCode==7 && checkSEGA8Header(baseHeaderAddress)==0){
+    printf("This is a Non-Japanese (alt) Game Gear ROM. There's no checksum to calculate\n");
   }else{
     printf("Header data not found at ROM location 0x1ff0 ,0x3ff0, or 0x7ff0. Most likely not a Mark III/Master System/Game Gear ROM.\n");
   }
 }
 
 void calculateROMChecksumSEGA8(int size,int headerBase){
+  struct checksum16 c={0,data[headerBase+0xa]+(data[headerBase+0xb]<<8)};
   printf("Processing checksum for Master System ROM\n");
-  printf("Amount of data to use: %d bytes\n",size);
-
+  printf("Number of bytes to use: %d bytes\n",size);
   printf("Calculating ROM checksum\n");
-    unsigned int sega8ChecksumCalc=0
-                 ,sega8Checksum
-                 ;
-
-  sega8Checksum=data[headerBase+0xa]+(data[headerBase+0xb]<<8);
 
   for(int i=0;i<size;i++){
-    sega8ChecksumCalc+=data[i];
+    c.calc+=data[i];
   }
 
   if(size>=(headerBase+0xf)){
     for(int i=headerBase;i<headerBase+0x10;i++){
-      sega8ChecksumCalc-=data[i];
+      c.calc-=data[i];
     }
   }
 
-  sega8ChecksumCalc=sega8ChecksumCalc&0xffff;
-
-  if(sega8Checksum==sega8ChecksumCalc){
-    printf("ROM Checksum in header (0x%04x) matches calculated checksum (0x%04x)\n",sega8Checksum,sega8ChecksumCalc);
+  if(c.calc==c.header){
+    printf("ROM Checksum in header (0x%04x) matches calculated checksum (0x%04x)\n",c.header,c.calc);
   }else{
-    printf("ROM Checksum in header (0x%04x) does not match calculated checksum (0x%04x)\n",sega8Checksum,sega8ChecksumCalc);
+    printf("ROM Checksum in header (0x%04x) does not match calculated checksum (0x%04x)\n",c.header,c.calc);
     printf("Updating data\n");
-    data[headerBase+0xa]=(sega8ChecksumCalc&0xff);
-    data[headerBase+0xb]=(sega8ChecksumCalc>>8);
-    dataChanged=1;
+    data[headerBase+0xa]=(c.calc&0xff);
+    data[headerBase+0xb]=(c.calc>>8);
+    rom.changed=1;
   }
 }
 

@@ -1,14 +1,14 @@
-#include <string.h>
-#include <stdlib.h>
+#include <string.h> //Needed for strcmp
+#include <stdlib.h> //Needed for malloc
 #include "io_handler.h"
+#include "console/structs.h"
 
-#define OUT_ROM_SIZE 128
+#define OUT_ROM_SIZE 255
 
-unsigned char* data;
+unsigned char* data; //Will eventually point to area in RAM containing data 
 long long unsigned int dataSize=0;
-unsigned int validROM=1
-            ,dataChanged=0
-            ;
+
+struct romStat rom={1,0};
 
 void printHelp(char* argv[],int errorCode);
 
@@ -37,7 +37,6 @@ void parseArguments(int argc,char* argv[]){
     }
 
     free(data);
-
   }
 }
 
@@ -84,9 +83,8 @@ void openFile(char* fileName){
 }
 
 void writeFile(char* fileName){
-  if(dataChanged!=0){
+  if(rom.changed==1){
     FILE* romFile;
-    //**Note** The "wb" is SUPER important. It forces the data to be written as raw byte
     romFile=fopen(fileName,"wb");
     fwrite(data,1,dataSize,romFile);
     fclose(romFile);

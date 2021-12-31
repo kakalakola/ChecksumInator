@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include "gba.h"
+#include "structs.h"
 
 #define GBA_NINTENDO_LOGO_START 4
 #define GBA_NINTENDO_LOGO_SIZE 156
 
 extern void writeFile(char* fileName);
+
+extern struct romStat rom;
 extern unsigned char* data;
-extern int validROM,dataChanged;
 
 void calculateChecksumGBA();
 
@@ -18,12 +20,12 @@ void processGBAROM(char* inFile,char* outFile){
 
   for(int i=0;i<GBA_NINTENDO_LOGO_SIZE;i++){
     if(data[i+4]!=nintendoLogoGBA[i]){
-      validROM=0;
+      rom.valid=0;
       break;
     }
   }
   printf("\n");
-  if(validROM==1){
+  if(rom.valid==1){
     printf("Processing Game Boy Advance ROM\n");
     calculateChecksumGBA();
     writeFile(outFile);
@@ -33,19 +35,18 @@ void processGBAROM(char* inFile,char* outFile){
 }
 
 void calculateChecksumGBA(){
-  unsigned char gbaChecksumCalc=-0x19;
+  struct checksum8 c={-0x19,data[0xbd]};
 
   for(int i=0xa0;i<0xbd;i++){
-    gbaChecksumCalc-=data[i];
+    c.calc-=data[i];
   }
-  gbaChecksumCalc=gbaChecksumCalc;
 
-  if(data[0xbd]==gbaChecksumCalc){
-    printf("Checksum in header (0x%02x) matches calculated checksum (0x%02x)\n",data[0xbd],gbaChecksumCalc);
+  if(c.calc==c.header){
+    printf("Checksum in header (0x%02x) matches calculated checksum (0x%02x)\n",c.header,c.calc);
   }else{
-    printf("Checksum in header (0x%02x) does not match calculated checksum (0x%02x)\n",data[0xbd],gbaChecksumCalc);
+    printf("Checksum in header (0x%02x) does not match calculated checksum (0x%02x)\n",c.header,c.calc);
     printf("Updating data\n");
-    data[0xbd]=gbaChecksumCalc;
-    dataChanged=1;
+    data[0xbd]=c.calc;
+    rom.changed=1;
   }
 }
