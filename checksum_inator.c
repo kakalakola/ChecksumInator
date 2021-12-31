@@ -1,10 +1,7 @@
-//#include <stdio.h>
-
 #include "io_handler.h"
 
 #define VERSION "0.6.0"
 #define BUILD_DATE "2021.12.31"
-
 
 int main(int argc,char* argv[]){
 
