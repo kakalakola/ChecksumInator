@@ -48,32 +48,45 @@ void processSEGA8ROM(char* inFile,char* outFile){
                ,regionCode=0
                ;
 
+  const char invalidROM[]="Header data not found at ROM location 0x1ff0 ,0x3ff0, or 0x7ff0. Most likely not a Mark III/Master System/Game Gear ROM.\n";
+
+  rom.valid=0;
+
   for(int i=0;i<3 && rom.valid==0;i++){
     baseHeaderAddress=headerLocations[i];
 
     sizeCode=data[baseHeaderAddress+0xf]&0xf;
     regionCode=data[baseHeaderAddress+0xf]>>4;
 
+    //Valid region & size codes are needed to make sure baseHeaderAddress is at the right offset
     if(regionCode>=3 && regionCode<=7 && sizeDef[sizeCode]!=0){
+      rom.valid=1;
       break;
     }
   }
 
-  if(regionCode==3 && checkSEGA8Header(baseHeaderAddress)==0){
-    printf("This is a Japanese Mark III ROM. There's no checksum to calculate\n");
-  }else if(regionCode==4){
-    printf("Processing Master System ROM\n");
-    calculateROMChecksumSEGA8(sizeDef[sizeCode],baseHeaderAddress);
-    writeFile(outFile);
-  }else if(regionCode==5 && checkSEGA8Header(baseHeaderAddress)==0){
-    printf("This is a Japanese Game Gear ROM. There's no checksum to calculate\n");
-  }else if(regionCode==6 && checkSEGA8Header(baseHeaderAddress)==0){
-    printf("This is a Non-Japanese Game Gear ROM. There's no checksum to calculate\n");
-  }else if(regionCode==7 && checkSEGA8Header(baseHeaderAddress)==0){
-    printf("This is a Non-Japanese (alt) Game Gear ROM. There's no checksum to calculate\n");
+  if(rom.valid==1){
+    if(regionCode==3){
+      printf("This is a Japanese Mark III ROM. There's no checksum to calculate\n");
+    }else if(checkSEGA8Header(baseHeaderAddress)==0){
+      if(regionCode==4){
+        printf("Processing Master System ROM\n");
+        calculateROMChecksumSEGA8(sizeDef[sizeCode],baseHeaderAddress);
+        writeFile(outFile);
+      }else if(regionCode==5){
+        printf("This is a Japanese Game Gear ROM. There's no checksum to calculate\n");
+      }else if(regionCode==6){
+        printf("This is a Non-Japanese Game Gear ROM. There's no checksum to calculate\n");
+      }else{
+        printf("This is a Non-Japanese (alt) Game Gear ROM. There's no checksum to calculate\n");
+      }
+    }else{
+      printf(invalidROM);
+    }
   }else{
-    printf("Header data not found at ROM location 0x1ff0 ,0x3ff0, or 0x7ff0. Most likely not a Mark III/Master System/Game Gear ROM.\n");
+    printf(invalidROM);
   }
+
 }
 
 void calculateROMChecksumSEGA8(int size,int headerBase){
