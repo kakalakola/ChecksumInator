@@ -1,13 +1,8 @@
-#include <string.h> //Needed for strcmp
-#include <stdlib.h> //Needed for malloc
+#include <string.h>
+#include <stdlib.h>
 #include "io_handler.h"
 
 #define OUT_ROM_SIZE 128
-
-//extern unsigned char* data;
-//extern long long unsigned int dataSize;
-//extern int validROM,dataChanged;
-
 
 unsigned char* data;
 long long unsigned int dataSize=0;
