@@ -1,5 +1,5 @@
 # ChecksumInator
-A checksum calculator for 8-bit ROMs.
+A checksum calculator for 8-bit ROMs. Created for homebrew purposes.
 
 New in version 0.6.0
   - Rewrote the entire code in C for ... reasons
