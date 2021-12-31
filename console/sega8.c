@@ -41,21 +41,12 @@ void processSEGA8ROM(char* inFile,char* outFile){
   unsigned char sizeCode=0
                ,regionCode=0
                ;
-  //printf("Check for console and region\n");
 
-  //First check for ROM validity, region & ROM size
   validROM=0;
   for(int i=0;i<3 && validROM==0;i++){
     baseHeaderAddress=headerLocations[i];
-    //printf("Checking for header at %04x\n",baseHeaderAddress);
-
     sizeCode=data[baseHeaderAddress+0xf]&0xf;
     regionCode=data[baseHeaderAddress+0xf]>>4;
-
-    //printf("sizeCode: 0x%x\n",sizeCode);
-    //printf("regionCode: 0x%x\n",regionCode);
-    //printf("\n\n");
-
 
     for(int j=0;j<5;j++){
       if(consoleDefKey[j]==regionCode){
@@ -103,7 +94,6 @@ void calculateROMChecksumSEGA8(int size,int headerBase){
     sega8ChecksumCalc+=data[i];
   }
 
-  //If file size includes area with header data, ignore header data AKA remove the sum of header data from the checksum
   if(size>=(headerBase+0xf)){
     for(int i=headerBase;i<headerBase+0x10;i++){
       sega8ChecksumCalc-=data[i];
