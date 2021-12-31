@@ -1,15 +1,13 @@
-CPP=g++.exe
-CPPVERSION=-std=c++17
-CPPFLAGS=-c -Wall
-LDFLAGS=
-PROJECT=checksum_inator
-LINKER=
+CC=gcc.exe
 
-HEADER=
+CFLAGS=-c -Wall -O3
 
-SOURCE=$(PROJECT).cpp ci_io_handler.cpp $(HEADER)
-#SOURCE=$(PROJECT).cpp ci_io_handler.cpp $(HEADER) console/sega_8.cpp
-OBJECTS=$(SOURCE:.cpp=.o)
+CVERSION=-std=c17
+
+PROJECT=ChecksumInator
+
+SOURCE=$(wildcard *.c) $(wildcard ./console/*.c)
+OBJECTS=$(SOURCE:.c=.o)
 EXECUTABLE=../bin/$(PROJECT).exe
 RM= rm -f
 
@@ -19,10 +17,7 @@ clean:
 	${RM} $(OBJECTS) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CPP) $(LDFLAGS) $(OBJECTS) $(LINKER) -static-libgcc -s -o $@
+	$(CC) $(OBJECTS) -s -o $@
 
-.cpp.o:
-	$(CPP) $(CPPVERSION) $(CPPFLAGS) -s $< -o $@ 
-
-#A little macro of sorts, just to avoid make "clean && make all" at the command prompt :3
-full: clean all
+.c.o:
+	$(CC) $(CVERSION) $(CFLAGS) -s $< -o $@
