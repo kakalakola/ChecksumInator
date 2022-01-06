@@ -111,6 +111,8 @@ int checkROMType(int romType){
       case 0xf: //0xfn Custom (with extra bits at $ffbf) 
         romType&=0x0f;
         break;
+      default:
+        return 0;
     }
 
     switch(romType){
