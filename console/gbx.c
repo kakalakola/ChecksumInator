@@ -7,8 +7,6 @@
 extern void writeFile(char* fileName);
 
 extern ROM rom;
-//extern unsigned char* data;
-//extern long long unsigned int dataSize;
 
 void calculateHeaderChecksumGB();
 void calculateROMChecksumGB();
