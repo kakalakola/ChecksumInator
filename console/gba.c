@@ -8,7 +8,6 @@
 extern void writeFile(char* fileName);
 
 extern ROM rom;
-//extern unsigned char* data;
 
 void calculateChecksumGBA();
 
