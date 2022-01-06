@@ -2,14 +2,13 @@
 #include "sega8.h"
 #include "structs.h"
 
-#define CONSOLE_DEFINITION 5
-
 extern void writeFile(char* fileName);
 
 extern ROM rom;
 
 void calculateROMChecksumSEGA8(int size,int headerBase);
-int checkSEGA8Header(int headerBase);
+unsigned int checkSEGA8Header(int headerBase); //Checks for the presence of "TMR SEGA" 
+unsigned int checkROMSize(int sizeCode); //Checks for valid ROM size in header
 
 unsigned int headerBase=0;
 
@@ -23,24 +22,7 @@ unsigned int headerBase=0;
 void processSEGA8ROM(char* inFile,char* outFile){
 
   const unsigned int headerLocations[3]={0x1ff0,0x3ff0,0x7ff0}
-              ,sizeDef[]={
-                256*1024  //0
-                ,512*1024 //1
-                ,0        //2, 1024 Kb, may not work in all BIOS
-                ,0        //3
-                ,0        //4
-                ,0        //5
-                ,0        //6
-                ,0        //7
-                ,0        //8
-                ,0        //9
-                ,8*1024   //a, If header is at $1ff0
-                ,16*1024  //b, If header is at $3ff0
-                ,32*1024  //c
-                ,0        //d, 48 Kb, may not work in all BIOS
-                ,64*1024  //e
-                ,128*1024 //f
-              };
+              ;
   unsigned char sizeCode=0
                ,regionCode=0
                ;
@@ -59,7 +41,7 @@ void processSEGA8ROM(char* inFile,char* outFile){
     regionCode=rom.data[headerBase+0xf]>>4;
 
     //Valid region & size codes are needed to make sure headerBase is at the right offset
-    if(regionCode>=3 && regionCode<=7 && sizeDef[sizeCode]!=0){
+    if(regionCode>=3 && regionCode<=7 && checkROMSize(sizeCode)!=0){
       rom.valid=1;
       break;
     }
@@ -71,7 +53,7 @@ void processSEGA8ROM(char* inFile,char* outFile){
     }else if(checkSEGA8Header(headerBase)==0){
       if(regionCode==4){
         printf("Processing Master System ROM\n");
-        calculateROMChecksumSEGA8(sizeDef[sizeCode],headerBase);
+        calculateROMChecksumSEGA8(checkROMSize(sizeCode),headerBase);
         writeFile(outFile);
       }else if(regionCode==5){
         printf("This is a Japanese Game Gear ROM. There's no checksum to calculate\n");
@@ -116,12 +98,33 @@ void calculateROMChecksumSEGA8(int size,int headerBase){
   }
 }
 
-int checkSEGA8Header(int headerBase){
+unsigned int checkSEGA8Header(int headerBase){
   char sega8Header[]={"TMR SEGA"};
   for(int i=0;i<8;i++){
     if(rom.data[headerBase+i]!=sega8Header[i]){
       return 1;
     }
   }
+  return 0;
+}
+
+unsigned int checkROMSize(int sizeCode){
+  switch(sizeCode){
+    case 0:
+      return 256*1024;
+    case 1:
+      return 512*1024;
+    case 0xa:
+      return 8*1024;
+    case 0xb:
+      return 16*1024;
+    case 0xc:
+      return 32*1024;
+    case 0xe:
+      return 64*1024;
+    case 0xf:
+      return 128*1024;
+
+  };
   return 0;
 }

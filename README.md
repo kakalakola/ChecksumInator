@@ -1,8 +1,12 @@
 # ChecksumInator
-A checksum calculator for 8-bit ROMs. Created for homebrew purposes.
+A checksum calculator for 8-bit & 16-bit ROMs. Created for homebrew purposes.
+
+New in version 1.0.0
+  - Added support for SEGA Genesis/Mega Drive/32X ROMs
+    - Admittedly, some officially released Genesis/MD games seem to have bad checksums.
 
 New in version 0.8.0
-  - Added basic support for SNES ROMS
+  - Added basic support for SNES ROMs
   - Moved data array & file size to a struct
 
 New in version 0.6.1

@@ -5,11 +5,7 @@
 
 #define OUT_ROM_SIZE 255
 
-unsigned char* data; //Will eventually point to area in RAM containing data 
-long long unsigned int dataSize=0;
-
 ROM rom={1,0};
-
 void printHelp(char* argv[],int errorCode);
 
 void parseArguments(int argc,char* argv[]){
@@ -32,13 +28,15 @@ void parseArguments(int argc,char* argv[]){
       processGBROM(argv[2],outROM);
     }else if(strcmp(argv[1],"ms")==0 || strcmp(argv[1],"sms")==0 || strcmp(argv[1],"gg")==0){
       processSEGA8ROM(argv[2],outROM);
+    }else if(strcmp(argv[1],"32x")==0 || strcmp(argv[1],"gen")==0 || strcmp(argv[1],"md")==0){
+      processSEGA16ROM(argv[2],outROM);
     }else if(strcmp(argv[1],"snes")==0){
       processSNESROM(argv[2],outROM);
     }else{
       printHelp(argv,1);
     }
 
-    free(data);
+    free(rom.data);
   }
 }
 
@@ -56,11 +54,13 @@ void printHelp(char* argv[],int errorCode){
   printf("Usage: ");
   printf("%s [console] [source] [output(optional)]\n",argv[0]);
   printf("Supported consoles:\n");
-  printf("      gb - Game Boy/GB Color/Super GB\n");
-  printf("     gba - Game Boy Advance\n");
-  printf("      ms - SEGA Master System\n");
-  printf("  sneslo - SNES, Lo ROM\n");
-  printf("  sneshi - SNES, Hi ROM\n");
+  printf("   32x - 32X\n");
+  printf("    gb - Game Boy/GB Color/Super GB\n");
+  printf("   gba - Game Boy Advance\n");
+  printf("   gen - Genesis/Mega Drive\n");
+  printf("    md - Genesis/Mega Drive\n");
+  printf("    ms - Master System\n");
+  printf("  snes - SNES, Lo ROM\n");
   printf("\n");
   printf("If an output file is not specified, and checksum data has been changed, the source file is overwritten.");
 }
@@ -77,17 +77,11 @@ void openFile(char* fileName){
 
   fseek(romFile,0l,SEEK_END);
   rom.size=ftell(romFile);
-  dataSize=rom.size;
 
-  data=malloc(dataSize);
-
-  fseek(romFile,0l,SEEK_SET);
-  fread(data,dataSize,1,romFile);
-
-  rom.data=malloc(dataSize);
+  rom.data=malloc(rom.size);
 
   fseek(romFile,0l,SEEK_SET);
-  fread(rom.data,dataSize,1,romFile);
+  fread(rom.data,rom.size,1,romFile);
 
   fclose(romFile);
 }
@@ -103,5 +97,4 @@ void writeFile(char* fileName){
   }else{
     printf("\nData not changed, there's nothing to write\n");
   }
-
 }

@@ -4,7 +4,7 @@ CVERSION=-std=c17
 PROJECT=ChecksumInator
 SOURCE=$(wildcard *.c) $(wildcard ./console/*.c)
 OBJECTS=$(SOURCE:.c=.o)
-EXECUTABLE=../bin/$(PROJECT).exe
+EXECUTABLE=$(PROJECT).exe
 RM= rm -f
 
 all: $(SOURCE) $(EXECUTABLE)
