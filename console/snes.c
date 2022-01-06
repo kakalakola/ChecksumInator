@@ -30,16 +30,6 @@ void processSNESROM(char* inFile,char* outFile){
     headerBase=headerLocations[i];
     mapMode=rom.data[headerBase+0xd5];
 
-    //printf("Looking for SNES ROM header at 0x%08x,\n",headerBase);
-    //
-    //printf("0x%04x: %02x - Map mode\n",headerBase+0xd5,mapMode);
-    //printf("0x%04x: %02x - ROM type\n",headerBase+0xd6,rom.data[headerBase+0xd6]);
-    //printf("0x%04x: %02x - ROM size\n",headerBase+0xd7,rom.data[headerBase+0xd7]);
-    //printf(" - %08d bytes, %04d Kb\n",2<<(rom.data[headerBase+0xd7]+9),2<<(rom.data[headerBase+0xd7]-1));
-    //printf(" - %08I64d bytes, %04I64d Kb (actual)\n",rom.size,rom.size>>10);
-    //printf("0x%04x: %02x - SRAM size\n",headerBase+0xd8,rom.data[headerBase+0xd8]);
-    //printf("0x%04x: %02x - Destination\n",headerBase+0xd9,rom.data[headerBase+0xd9]);
-
     //First pass to make sure that rom configuration data at 0x7fd5, 0xffd5, 0x407fd5 or 0x40ffd5 isn't a valid ROM configuration value by chance.
     if(
       checkMapMode(rom.data[headerBase+0xd5])
@@ -49,8 +39,6 @@ void processSNESROM(char* inFile,char* outFile){
       && rom.data[headerBase+0xd9]<0x15
     ){
       rom.valid=1;
-      //printf("--%s detected--\n",headerDef[i]);
-
       //Assuming header data at 0x7fd0 or 0xffd0 is valid, there's *still* a chance that the ROM might be an Ex LoROM/Ex HiROM
 
       if((mapMode==0x25 || mapMode==0x35) && i<2){
@@ -87,7 +75,7 @@ void processSNESROM(char* inFile,char* outFile){
 }
 
 int checkMapMode(int mapMode){
-  //Bulkier than parsing FOR loops, but *slightly* faster. And easier to document.
+  //Bulkier than parsing FOR loops, but *slightly* faster. And easier to comment on.
   switch(mapMode){
     case 0x20: //Mode 20 slow LoROM
     case 0x21: //Mode 21 slow HiRom
@@ -125,7 +113,7 @@ int checkROMType(int romType){
         break;
     }
 
-    switch(romType&0x0f){
+    switch(romType){
       case 3: //ROM+Co-processor
       case 4: //ROM+Co-processor+RAM
       case 5: //ROM+Co-processor+RAM+Battery
