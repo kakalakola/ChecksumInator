@@ -7,8 +7,8 @@
 
 extern void writeFile(char* fileName);
 
-extern struct romStat rom;
-extern unsigned char* data;
+extern ROM rom;
+//extern unsigned char* data;
 
 void calculateChecksumGBA();
 
@@ -19,7 +19,7 @@ unsigned int nintendoLogoGBA[GBA_NINTENDO_LOGO_SIZE]={
 void processGBAROM(char* inFile,char* outFile){
 
   for(int i=0;i<GBA_NINTENDO_LOGO_SIZE;i++){
-    if(data[i+4]!=nintendoLogoGBA[i]){
+    if(rom.data[i+4]!=nintendoLogoGBA[i]){
       rom.valid=0;
       break;
     }
@@ -35,10 +35,10 @@ void processGBAROM(char* inFile,char* outFile){
 }
 
 void calculateChecksumGBA(){
-  struct checksum8 c={-0x19,data[0xbd]};
+  checksum8 c={-0x19,rom.data[0xbd]};
 
   for(int i=0xa0;i<0xbd;i++){
-    c.calc-=data[i];
+    c.calc-=rom.data[i];
   }
 
   if(c.calc==c.header){
@@ -46,7 +46,7 @@ void calculateChecksumGBA(){
   }else{
     printf("Checksum in header (0x%02x) does not match calculated checksum (0x%02x)\n",c.header,c.calc);
     printf("Updating data\n");
-    data[0xbd]=c.calc;
+    rom.data[0xbd]=c.calc;
     rom.changed=1;
   }
 }

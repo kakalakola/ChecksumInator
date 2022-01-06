@@ -8,7 +8,7 @@
 unsigned char* data; //Will eventually point to area in RAM containing data 
 long long unsigned int dataSize=0;
 
-struct romStat rom={1,0};
+ROM rom={1,0};
 
 void printHelp(char* argv[],int errorCode);
 
@@ -32,6 +32,8 @@ void parseArguments(int argc,char* argv[]){
       processGBROM(argv[2],outROM);
     }else if(strcmp(argv[1],"ms")==0 || strcmp(argv[1],"sms")==0 || strcmp(argv[1],"gg")==0){
       processSEGA8ROM(argv[2],outROM);
+    }else if(strcmp(argv[1],"snes")==0){
+      processSNESROM(argv[2],outROM);
     }else{
       printHelp(argv,1);
     }
@@ -54,9 +56,11 @@ void printHelp(char* argv[],int errorCode){
   printf("Usage: ");
   printf("%s [console] [source] [output(optional)]\n",argv[0]);
   printf("Supported consoles:\n");
-  printf("   gb - Game Boy/GB Color/Super GB\n");
-  printf("  gba - Game Boy Advance\n");
-  printf("   ms - SEGA Master System\n");
+  printf("      gb - Game Boy/GB Color/Super GB\n");
+  printf("     gba - Game Boy Advance\n");
+  printf("      ms - SEGA Master System\n");
+  printf("  sneslo - SNES, Lo ROM\n");
+  printf("  sneshi - SNES, Hi ROM\n");
   printf("\n");
   printf("If an output file is not specified, and checksum data has been changed, the source file is overwritten.");
 }
@@ -72,21 +76,27 @@ void openFile(char* fileName){
   };
 
   fseek(romFile,0l,SEEK_END);
-  dataSize = ftell(romFile);
+  rom.size=ftell(romFile);
+  dataSize=rom.size;
 
   data=malloc(dataSize);
 
   fseek(romFile,0l,SEEK_SET);
   fread(data,dataSize,1,romFile);
 
+  rom.data=malloc(dataSize);
+
+  fseek(romFile,0l,SEEK_SET);
+  fread(rom.data,dataSize,1,romFile);
+
   fclose(romFile);
 }
 
 void writeFile(char* fileName){
-  if(rom.changed==1){
+  if(rom.changed){
     FILE* romFile;
     romFile=fopen(fileName,"wb");
-    fwrite(data,1,dataSize,romFile);
+    fwrite(rom.data,1,rom.size,romFile);
     fclose(romFile);
 
     printf("\nWriting ROM file \"%s\"\n",fileName);

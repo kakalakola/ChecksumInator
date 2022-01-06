@@ -6,9 +6,9 @@
 
 extern void writeFile(char* fileName);
 
-extern struct romStat rom;
-extern unsigned char* data;
-extern long long unsigned int dataSize;
+extern ROM rom;
+//extern unsigned char* data;
+//extern long long unsigned int dataSize;
 
 void calculateHeaderChecksumGB();
 void calculateROMChecksumGB();
@@ -20,7 +20,7 @@ unsigned int nintendoLogoGB[GB_NINTENDO_LOGO_SIZE]={
 
 void processGBROM(char* inFile,char* outFile){
   for(int i=0;i<GB_NINTENDO_LOGO_SIZE;i++){
-    if(data[i+260]!=nintendoLogoGB[i]){
+    if(rom.data[i+260]!=nintendoLogoGB[i]){
       rom.valid=0;
       break;
     }
@@ -38,11 +38,11 @@ void processGBROM(char* inFile,char* outFile){
 }
 
 void calculateHeaderChecksumGB(){
-  struct checksum8 c={0,data[0x14d]};
+  checksum8 c={0,rom.data[0x14d]};
   printf("Calculating header checksum\n");
 
   for(int i=0x0134;i<=0x014c;i++){
-    c.calc=(c.calc-data[i])-1;
+    c.calc=(c.calc-rom.data[i])-1;
   }
 
   if(c.calc==c.header){
@@ -50,26 +50,26 @@ void calculateHeaderChecksumGB(){
   }else{
     printf("Header Checksum in header (0x%02x) does not match calculated checksum (0x%02x)\n",c.header,c.calc);
     printf("Updating data\n");
-    data[0x14d]=c.calc;
+    rom.data[0x14d]=c.calc;
     rom.changed=1;
   }
 }
 
 void calculateROMChecksumGB(){
-  struct checksum16 c={-(data[0x14e]+data[0x14f]),(data[0x14e]<<8)+(data[0x14f])};
+  checksum16 c={-(rom.data[0x14e]+rom.data[0x14f]),(rom.data[0x14e]<<8)+(rom.data[0x14f])};
   printf("Calculating ROM checksum\n");
 
-  for(int i=0;i<dataSize;i++){
-    c.calc+=data[i];
+  for(int i=0;i<rom.size;i++){
+    c.calc+=rom.data[i];
   }
 
   if(c.calc==c.header){
-    printf("ROM Checksum in header (0x%04x) matches calculated checksum (0x%04x)\n",c.header,c.calc);
+    printf("ROM checksum in header (0x%04x) matches calculated checksum (0x%04x)\n",c.header,c.calc);
   }else{
-    printf("ROM Checksum in header (0x%04x) does not match calculated checksum (0x%04x)\n",c.header,c.calc);
+    printf("ROM checksum in header (0x%04x) does not match calculated checksum (0x%04x)\n",c.header,c.calc);
     printf("Updating data\n");
-    data[0x14e]=(c.calc>>8);
-    data[0x14f]=(c.calc&0xff);
+    rom.data[0x14e]=(c.calc>>8);
+    rom.data[0x14f]=(c.calc&0xff);
     rom.changed=1;
   }
 }

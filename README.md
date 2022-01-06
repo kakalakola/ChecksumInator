@@ -1,6 +1,10 @@
 # ChecksumInator
 A checksum calculator for 8-bit ROMs. Created for homebrew purposes.
 
+New in version 0.8.0
+  - Added basic support for SNES ROMS
+  - Moved data array & file size to a struct
+
 New in version 0.6.1
   - Reworked the region & size validation code for Mark III/Master System/Game Gear ROMs
   - Started using structs with bit fields
