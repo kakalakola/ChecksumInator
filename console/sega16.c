@@ -12,7 +12,7 @@ void calculateROMChecksumSEGA16();
 void processSEGA16ROM(char* inFile,char* outFile){
   rom.valid=0;
 
-  //Header
+  //Check ROM for valid header
   //32X headers usually have        "SEGA 32X        " with optional region code at the end
   //Genesis headers usually have    "SEGA GENESIS    "
   //Mega Drive headers usually have "SEGA MEGA DRIVE "
@@ -28,8 +28,7 @@ void processSEGA16ROM(char* inFile,char* outFile){
       } 
     }
   }
-  //printf("\n\n");
-  //Check header for valid file
+
   if(rom.valid){
     printf("Processing SEGA Genesis/Mega Drive/32X ROM\n");
     calculateROMChecksumSEGA16();

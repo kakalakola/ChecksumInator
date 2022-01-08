@@ -3,28 +3,35 @@
 #include "io_handler.h"
 #include "console/structs.h"
 
-#define OUT_ROM_SIZE 255
 
 ROM rom={1,0};
 void printHelp(char* argv[],int errorCode);
 
 void parseArguments(int argc,char* argv[]){
-  char outROM[OUT_ROM_SIZE+1]="";
+  char* outROM;
 
   if(argc<3){
     printHelp(argv,0);
   }else{
     if(argc<4){
-      strncat(outROM,argv[2],OUT_ROM_SIZE);
+      //The code compiles without sLength, but with minor errors
+      int sLength=strlen(argv[2])+1;
+      outROM=malloc(sLength);
+      outROM[0]='\0';
+      strncat(outROM,argv[2],sLength);
+      printf("strlen(argv[2]): %Iu\n",strlen(argv[2]));
+      printf("strlen(outROM): %Iu\n",strlen(outROM));
     }else{
-      strncat(outROM,argv[3],OUT_ROM_SIZE);
+      outROM=argv[3];
+      printf("strlen(argv[3]): %Iu\n",strlen(argv[3]));
+      printf("strlen(outROM): %Iu\n",strlen(outROM));
     }
 
     openFile(argv[2]);
 
     if(strcmp(argv[1],"gba")==0){
       processGBAROM(argv[2],outROM);
-    }else if(strcmp(argv[1],"gb")==0 || strcmp(argv[1],"gbx")==0){
+    }else if(strcmp(argv[1],"gb")==0 || strcmp(argv[1],"gbc")==0 || strcmp(argv[1],"gbx")==0 || strcmp(argv[1],"sgb")==0){
       processGBROM(argv[2],outROM);
     }else if(strcmp(argv[1],"ms")==0 || strcmp(argv[1],"sms")==0 || strcmp(argv[1],"gg")==0){
       processSEGA8ROM(argv[2],outROM);

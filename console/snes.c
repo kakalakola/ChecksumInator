@@ -80,14 +80,14 @@ int checkMapMode(int mapMode){
     case 0x20: //Mode 20 slow LoROM
     case 0x21: //Mode 21 slow HiRom
     case 0x22: //Reserved for future slow LoROM use ...?
-    case 0x23: //Mode 23 SA-1+slow LoROM ...?
+    case 0x23: //Mode 23 SA-1+slow LoROM
     case 0x25: //Mode 25 slow HiROM (Ex LoROM...?)
     case 0x30: //Mode 30 fast LoRom
     case 0x31: //Mode 31 fast HiROM
     case 0x32: //Mode 32 S-DD1 fast LoROM (used by Star Ocean & SFA 2)
     case 0x33: //Mode 23 SA-1+fast LoROM ...?
     case 0x35: //Mode 35 Ex HiROM
-    case 0x3a: //Fast HiROM (?) Used by palsoft games? Games that use SPC7110
+    case 0x3a: //Fast HiROM - Used by palsoft games? Games that use SPC7110
       return 1;
   }
   return 0;
@@ -108,7 +108,7 @@ int checkROMType(int romType){
       case 0x4: //0x4n S-DD1
       case 0x5: //0x5n S-RTC
       case 0xe: //0xen Other (SGB/BS)
-      case 0xf: //0xfn Custom (with extra bits at $ffbf) 
+      case 0xf: //0xfn Custom (with extra bits at 0xffbf) 
         romType&=0x0f;
         break;
       default:

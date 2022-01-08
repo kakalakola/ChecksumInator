@@ -2,8 +2,8 @@
 
 #include "io_handler.h"
 
-#define VERSION "1.0.0"
-#define BUILD_DATE "2022.01.06"
+#define VERSION "1.0.1"
+#define BUILD_DATE "2022.01.08"
 
 
 int main(int argc,char* argv[]){
