@@ -14,17 +14,12 @@ void parseArguments(int argc,char* argv[]){
     printHelp(argv,0);
   }else{
     if(argc<4){
-      //The code compiles without sLength, but with minor errors
       int sLength=strlen(argv[2])+1;
       outROM=malloc(sLength);
       outROM[0]='\0';
       strncat(outROM,argv[2],sLength);
-      printf("strlen(argv[2]): %Iu\n",strlen(argv[2]));
-      printf("strlen(outROM): %Iu\n",strlen(outROM));
     }else{
       outROM=argv[3];
-      printf("strlen(argv[3]): %Iu\n",strlen(argv[3]));
-      printf("strlen(outROM): %Iu\n",strlen(outROM));
     }
 
     openFile(argv[2]);
