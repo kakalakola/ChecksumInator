@@ -3,7 +3,6 @@
 #include "structs.h"
 
 extern void writeFile(char* fileName);
-
 extern ROM rom;
 
 void calculateROMChecksumSEGA8(int size,int headerBase);
@@ -124,7 +123,6 @@ unsigned int checkROMSize(int sizeCode){
       return 64*1024;
     case 0xf:
       return 128*1024;
-
   };
   return 0;
 }
