@@ -11,6 +11,10 @@ jobs:
 
     runs-on: windows-latest
 
+  
+- name: Install GCC
+  uses: egor-tensin/setup-gcc@v1
+  
     steps:
     - uses: actions/checkout@v2
     #- name: configure
@@ -21,11 +25,11 @@ jobs:
     #  run: make check
     #- name: make distcheck
     #  run: make distcheck
-    - name: Setup GCC
-      uses: egor-tensin/setup-gcc@1
-      with:
-        version: latest
-        platform: x64
+    #- name: Setup GCC
+    #  uses: egor-tensin/setup-gcc@1
+    #  with:
+        #version: latest
+        #platform: x64
 
     - name: Build
       run: make
