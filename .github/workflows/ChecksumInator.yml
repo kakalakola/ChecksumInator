@@ -12,28 +12,13 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      #- uses: egor-tensin/setup-gcc@v1
-  
+
     - name: Set up MinGW
       uses: egor-tensin/setup-mingw@v2
       with:
         platform: x64
   
-    #steps:
     - uses: actions/checkout@v2
-    #- name: configure
-    #  run: ./configure
-    #- name: make
-    #  run: make
-    #- name: make check
-    #  run: make check
-    #- name: make distcheck
-    #  run: make distcheck
-    #- name: Setup GCC
-    #  uses: egor-tensin/setup-gcc@1
-    #  with:
-        #version: latest
-        #platform: x64
 
     - name: Build
       run: make
