@@ -3,7 +3,6 @@
 #include "io_handler.h"
 #include "console/structs.h"
 
-
 ROM rom={1,0};
 void printHelp(char* argv[],int errorCode);
 
