@@ -1,3 +1,5 @@
+![example workflow](https://github.com/kakalakola/ChecksumInator/actions/workflows/ChecksumInator.yml/badge.svg)
+
 # ChecksumInator
 A checksum calculator for 8-bit & 16-bit ROMs. Created for homebrew purposes.
 
