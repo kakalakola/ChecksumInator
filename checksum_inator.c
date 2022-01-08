@@ -1,5 +1,3 @@
-//#include <stdio.h>
-
 #include "io_handler.h"
 
 #define VERSION "1.0.1"
