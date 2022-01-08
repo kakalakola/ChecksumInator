@@ -18,7 +18,6 @@ void processSNESROM(char* inFile,char* outFile){
                ,i=0
                ;
 
-  //printf("Processing SNES ROM\n");
   rom.valid=0;
 
   for(i=0;i<4;i++){
