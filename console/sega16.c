@@ -13,7 +13,7 @@ void processSEGA16ROM(char* inFile,char* outFile){
   rom.valid=0;
 
   //Check ROM for valid header
-  //32X headers usually have        "SEGA 32X        " with optional region code at the end
+  //32X headers usually have        "SEGA 32X        " with optional region code at the last/last two/last three bytes
   //Genesis headers usually have    "SEGA GENESIS    "
   //Mega Drive headers usually have "SEGA MEGA DRIVE "
   // - Ball Jacks (JE) has          " SEGA MEGA DRIVE"
@@ -30,7 +30,13 @@ void processSEGA16ROM(char* inFile,char* outFile){
   }
 
   if(rom.valid){
-    printf("Processing SEGA Genesis/Mega Drive/32X ROM\n");
+    //Check for 0x000003F0 at address 0x000004
+    if(((rom.data[0x04]<<24)+(rom.data[0x05]<<16)+(rom.data[0x06]<<8)+(rom.data[0x07]))==0x03f0){
+      printf("Processing SEGA 32X ROM\n");
+    }else{
+      //Technically this value should be $0200 or higher. Put in a check later?
+      printf("Processing SEGA Genesis/Mega Drive ROM\n");
+    }
     calculateROMChecksumSEGA16();
     writeFile(outFile);
   }else{
@@ -46,6 +52,8 @@ void calculateROMChecksumSEGA16(){
 
   //A safety check, of sorts, *if* the ROM size defined in header is larger than 4096 Kb
   romSize=romSize>MAX_ROM_SIZE?MAX_ROM_SIZE:romSize;
+
+  printf("Calculating ROM checksum for %d bytes\n",romSize);
 
   for(int i=0x200;i<romSize;i+=2){
     c.calc+=(rom.data[i]<<8);

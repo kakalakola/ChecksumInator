@@ -1,8 +1,7 @@
 #include "io_handler.h"
 
 #define VERSION "1.0.1"
-#define BUILD_DATE "2022.01.08"
-
+#define BUILD_DATE "2022.01.19"
 
 int main(int argc,char* argv[]){
   printf("BEHOLD! THE CHECKSUM INATOR!!\n");

@@ -17,6 +17,7 @@ void parseArguments(int argc,char* argv[]){
       outROM=malloc(sLength);
       outROM[0]='\0';
       strncat(outROM,argv[2],sLength);
+      free(outROM);
     }else{
       outROM=argv[3];
     }
@@ -61,7 +62,7 @@ void printHelp(char* argv[],int errorCode){
   printf("   gen - Genesis/Mega Drive\n");
   printf("    md - Genesis/Mega Drive\n");
   printf("    ms - Master System\n");
-  printf("  snes - SNES, Lo ROM\n");
+  printf("  snes - SNES\n");
   printf("\n");
   printf("If an output file is not specified, and checksum data has been changed, the source file is overwritten.");
 }
@@ -93,6 +94,8 @@ void writeFile(char* fileName){
     romFile=fopen(fileName,"wb");
     fwrite(rom.data,1,rom.size,romFile);
     fclose(romFile);
+
+    free(rom.data);
 
     printf("\nWriting ROM file \"%s\"\n",fileName);
   }else{

@@ -73,8 +73,7 @@ void processSEGA8ROM(char* inFile,char* outFile){
 void calculateROMChecksumSEGA8(int size,int headerBase){
   checksum16 c={0,rom.data[headerBase+0xa]+(rom.data[headerBase+0xb]<<8)};
   printf("Processing checksum for Master System ROM\n");
-  printf("Number of bytes to use: %d bytes\n",size);
-  printf("Calculating ROM checksum\n");
+  printf("Calculating ROM checksum for %d bytes\n",size);
 
   for(int i=0;i<size;i++){
     c.calc+=rom.data[i];
@@ -110,19 +109,19 @@ unsigned int checkSEGA8Header(int headerBase){
 unsigned int checkROMSize(int sizeCode){
   switch(sizeCode){
     case 0:
-      return 256*1024;
+      return 0x40000; //256 Kb;
     case 1:
-      return 512*1024;
+      return 0x80000; //512 Kb
     case 0xa:
-      return 8*1024;
+      return 0x2000; //8 Kb
     case 0xb:
-      return 16*1024;
+      return 0x4000; //16 Kb
     case 0xc:
-      return 32*1024;
+      return 0x8000; //32 Kb
     case 0xe:
-      return 64*1024;
+      return 0x10000; //64 Kb
     case 0xf:
-      return 128*1024;
+      return 0x20000; //128 Kb
   };
   return 0;
 }

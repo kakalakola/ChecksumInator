@@ -24,9 +24,19 @@ void processGBROM(char* inFile,char* outFile){
     }
   }
   if(rom.valid==1){
-    //To do:
-    // - Separate messages depending on GB/SGB/GBC+GB or GBC only ROM...?
-    printf("Processing Game Boy/GB Color/Super GB ROM\n");
+    if(rom.data[0x0143]==0 && rom.data[0x0146]==0){
+      printf("Processing Game Boy ROM\n");
+    }else if(rom.data[0x0143]!=0x80 && rom.data[0x0143]!=0xc0 &&rom.data[0x0146]==3){
+      printf("Processing Super Game Boy ROM\n");
+    }else if(rom.data[0x0143]==0x80 && rom.data[0x0146]==0){
+      printf("Processing Game Boy ROM with Game Boy Color Support\n");
+    }else if(rom.data[0x0143]==0x80 && rom.data[0x0146]==3){
+      printf("Processing Game Boy ROM with Game Boy Color & Super Game Boy Support\n");
+    }else if(rom.data[0x0143]==0xc0 && rom.data[0x0146]==0){
+      printf("Processing Game Boy Color ROM\n");
+    }
+    //There's no need to test for 0xc0 & 0x03 combo, since the Super Game Boy couldn't support GBC's high speed mode.
+
     calculateHeaderChecksumGB();
     calculateROMChecksumGB();
     writeFile(outFile);
