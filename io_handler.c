@@ -84,8 +84,6 @@ void printHelp(char* argv[],int errorCode){
   printf("    md - Genesis/Mega Drive\n");
   printf("    ms - Master System\n");
   printf("  snes - SNES\n");
-  printf("\n");
-  printf("If an output file is not specified, and checksum data has been changed, the source file is overwritten.");
 }
 
 void openFile(char* fileName){

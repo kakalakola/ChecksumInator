@@ -3,7 +3,7 @@
 # ChecksumInator
 A checksum calculator for 8-bit & 16-bit ROMs. Created for homebrew purposes.
 
-New in version 1.1.0
+New in version 1.0.2
   - As precaution, ChecksumInator now adds "_fixed" suffix to file name if no output file name is provided
     - "filename.ext" -> "filename_fixed.ext"
     - "filename" -> "filename_fixed"
