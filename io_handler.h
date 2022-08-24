@@ -2,6 +2,7 @@
   #define IO_HANDLER
 
   #include <stdio.h>
+  #include <stdlib.h> //Needed for malloc and EXIT_SUCCESS/EXIT_FAILURE
   #include "console/gbx.h"
   #include "console/gba.h"
   #include "console/sega8.h"
