@@ -9,13 +9,18 @@ int checkMapMode(int mapMode);
 int checkROMType(int romType);
 void calculateROMChecksumSNES(int headerBase,int mapMode);
 
+int checkBSXMap(int mapMode);
+int checkBSXType(int romType);
+//void calculateROMChecksumBSX(int haderBase);
+
 void processSNESROM(char* inFile,char* outFile){
   const unsigned int headerLocations[4]={0x7f00,0xff00,0x407f00,0x40ff00};
-  const char* headerDef[]={"LoROM","HiROM","Ex LoROM","Ex HiROM"};
+  const char* headerDef[]={"LoROM","HiROM","Ex-LoROM","Ex-HiROM"};
 
   unsigned int headerBase=0
                ,mapMode=0
                ,i=0
+               ,bsx=0
                ;
 
   rom.valid=0;
@@ -61,12 +66,28 @@ void processSNESROM(char* inFile,char* outFile){
         }
       }
       break;
+    }else if(
+      //Check for BSX ROM header
+      //Main reference: https://satellaview.fandom.com/wiki/Satellaview_ROM_header
+      //The first byte (or first two bytes) at xxB0 should either be 01, or "01" ... or not...?
+      //(rom.data[headerBase+0xb0]==1 || (rom.data[headerBase+0xb0]==0x30 && rom.data[headerBase+0xb1]==0x31))
+      checkBSXMap(rom.data[headerBase+0xd8])
+      && checkBSXType(rom.data[headerBase+0xd9])
+    ){
+      bsx=1;
+      rom.valid=1;
+      break;
     }
   }
 
   if(rom.valid){
-    printf("Processing SNES %s\n",headerDef[i]);
-    calculateROMChecksumSNES(headerBase,mapMode);
+    if(bsx==0){
+      printf("Processing SNES %s\n",headerDef[i]);
+      calculateROMChecksumSNES(headerBase,mapMode);
+    }else{
+      printf("BSX %s files are beyond the scope of this program.\n",headerDef[i]);
+      //calculateROMChecksumBSX(headerBase);
+    }
     writeFile(outFile);
   }else{
     printf("Valid SNES ROM header not found. This might not be an SNES ROM.\n");
@@ -191,4 +212,28 @@ void calculateROMChecksumSNES(int headerBase,int mapMode){
     rom.changed=1;
   }
 
+}
+
+
+int checkBSXMap(int mapMode){
+  printf("Checking for BSX code 0x%02x\n",mapMode);
+  //I'm guessing as to what type of ROM mapping supported by the BSX. Since the BSX cartridge had 1 megabyte of storage, Ex-HiROM/Ex-LoROM and co-processors like the SA-1, or GSU are *probably* not supported. 
+  switch(mapMode){
+    case 0x20: //Mode 20 slow LoROM
+    case 0x21: //Mode 21 slow HiRom
+    case 0x30: //Mode 30 fast LoRom
+    case 0x31: //Mode 31 fast HiROM
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+int checkBSXType(int romType){
+  printf("Checking ROM type 0x%02x\n",romType);
+  int type=romType&0xf;
+  if(type>0){
+    return 0;
+  }
+  return 1;
 }
