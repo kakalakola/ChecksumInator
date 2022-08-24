@@ -11,7 +11,6 @@ void calculateROMChecksumSNES(int headerBase,int mapMode);
 
 int checkBSXMap(int mapMode);
 int checkBSXType(int romType);
-//void calculateROMChecksumBSX(int haderBase);
 
 void processSNESROM(char* inFile,char* outFile){
   const unsigned int headerLocations[4]={0x7f00,0xff00,0x407f00,0x40ff00};
