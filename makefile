@@ -1,19 +1,24 @@
 CC=gcc.exe
 CFLAGS=-c -Wall -O3
 CVERSION=-std=c17
-PROJECT=ChecksumInator
-SOURCE=$(wildcard *.c) $(wildcard ./console/*.c)
-OBJECTS=$(SOURCE:.c=.o)
-EXECUTABLE=$(PROJECT).exe
+PROJECT=checksum_inator
+
+SRC=$(wildcard *.c) $(wildcard ./console/*.c)
+OBJ=$(SRC:.c=.o)
+ASM=$(SRC:.c=.s)
+BIN=../bin/$(PROJECT).exe
+
 RM= rm -f
 
-all: $(SOURCE) $(EXECUTABLE)
+all: $(SRC) $(BIN)
 
 clean:
-	${RM} $(OBJECTS) $(EXECUTABLE)
+	${RM} $(ASM) $(OBJ) $(BIN)
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) -s -o $@
+$(BIN): $(OBJ)
+	$(CC) $(OBJ) -s -o $@
 
 .c.o:
 	$(CC) $(CVERSION) $(CFLAGS) -s $< -o $@
+
+full: clean all
