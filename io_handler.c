@@ -1,5 +1,4 @@
 #include <string.h> //Needed for strcmp
-#include <stdlib.h> //Needed for malloc
 #include "io_handler.h"
 #include "console/structs.h"
 
@@ -12,11 +11,33 @@ void parseArguments(int argc,char* argv[]){
   if(argc<3){
     printHelp(argv,0);
   }else{
+    //If no output file name is provided, we need to some fancy string stuff
     if(argc<4){
       int sLength=strlen(argv[2])+1;
-      outROM=malloc(sLength);
+      outROM=malloc(sLength+7);
       outROM[0]='\0';
+
+      //Prep outROM, which may contain directory paths
       strncat(outROM,argv[2],sLength);
+
+      //Check for the last ".", working from backwards. "i" needs to be declared outside the for loop, since it'll be used later.
+      int i;
+      for(i=sLength;i>0;i-=1){
+        if(argv[2][i]=='.'){
+          break;
+        }
+      }
+
+      if(i>1){
+        outROM[i]='\0';
+        strncat(outROM,"_fixed",7);
+        strncat(outROM,&argv[2][i],sLength-i); //Copies ".[extension]" to the end of string
+                                               //**NOTE** the second argument *has* to be a pointer
+      }else{
+        strncat(outROM,"_fixed",7);
+      }
+
+      printf("outROM: %s\n",outROM);
       free(outROM);
     }else{
       outROM=argv[3];
@@ -75,6 +96,7 @@ void openFile(char* fileName){
   printf("Opening file: \"%s\"\n",fileName);
   if(!romFile){
     printf("Error opening file!\n");
+    exit(EXIT_FAILURE);
   };
 
   fseek(romFile,0l,SEEK_END);
