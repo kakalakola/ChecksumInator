@@ -5,7 +5,7 @@ PROJECT=ChecksumInator
 
 SRC=$(wildcard *.c) $(wildcard ./console/*.c)
 OBJ=$(SRC:.c=.o)
-BIN=../bin/$(PROJECT).exe
+BIN=$(PROJECT).exe
 
 RM= rm -f
 
