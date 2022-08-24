@@ -1,63 +1,88 @@
 #include <stdio.h>
-#include "sega16.h"
+#include "sega8.h"
 #include "structs.h"
-
-#define MAX_ROM_SIZE 4096*1024
 
 extern void writeFile(char* fileName);
 extern ROM rom;
 
-void calculateROMChecksumSEGA16();
+void calculateROMChecksumSEGA8(int size,int headerBase);
+unsigned int checkSEGA8Header(int headerBase); //Checks for the presence of "TMR SEGA" 
+unsigned int checkROMSize(int sizeCode); //Checks for valid ROM size in header
 
-void processSEGA16ROM(char* inFile,char* outFile){
+unsigned int headerBase=0;
+
+//Region code:
+//  3 - Mark III
+//  4 - Master System
+//  5 - Game Gear, Japan
+//  6 - Game Gear, export
+//  7 - Game Gear, export (alt)
+
+void processSEGA8ROM(char* inFile,char* outFile){
+
+  const unsigned int headerLocations[3]={0x1ff0,0x3ff0,0x7ff0}
+              ;
+  unsigned char sizeCode=0
+               ,regionCode=0
+               ;
+
+  const char invalidROM[]="Header data not found at ROM location 0x1ff0 ,0x3ff0, or 0x7ff0. Most likely not a Mark III/Master System/Game Gear ROM.\n";
+
   rom.valid=0;
 
-  //Check ROM for valid header
-  //32X headers usually have        "SEGA 32X        " with optional region code at the last/last two/last three bytes
-  //Genesis headers usually have    "SEGA GENESIS    "
-  //Mega Drive headers usually have "SEGA MEGA DRIVE "
-  // - Ball Jacks (JE) has          " SEGA MEGA DRIVE"
+  for(int i=0;i<3 && rom.valid==0;i++){
+    if(headerLocations[i]>rom.size){
+      break;
+    }
+    headerBase=headerLocations[i];
 
-  for(int i=0x100;i<0x10c;i++){
-    //printf("%c",rom.data[i]);
-    if(rom.data[i]=='S'){
-      //Check for "SEGA"
-      if(rom.data[i+1]=='E' && rom.data[i+2]=='G' && rom.data[i+3]=='A'){
-        rom.valid=1;
-        break;
-      } 
+    sizeCode=rom.data[headerBase+0xf]&0xf;
+    regionCode=rom.data[headerBase+0xf]>>4;
+
+    //Valid region & size codes are needed to make sure headerBase is at the right offset
+    if(regionCode>=3 && regionCode<=7 && checkROMSize(sizeCode)!=0){
+      rom.valid=1;
+      break;
     }
   }
 
-  if(rom.valid){
-    //Check for 0x000003F0 at address 0x000004
-    if(((rom.data[0x04]<<24)+(rom.data[0x05]<<16)+(rom.data[0x06]<<8)+(rom.data[0x07]))==0x03f0){
-      printf("Processing SEGA 32X ROM\n");
+  if(rom.valid==1){
+    if(regionCode==3){
+      printf("This is a Japanese Mark III ROM. There's no checksum to calculate\n");
+    }else if(checkSEGA8Header(headerBase)==0){
+      if(regionCode==4){
+        printf("Processing Master System ROM\n");
+        calculateROMChecksumSEGA8(checkROMSize(sizeCode),headerBase);
+        writeFile(outFile);
+      }else if(regionCode==5){
+        printf("This is a Japanese Game Gear ROM. There's no checksum to calculate\n");
+      }else if(regionCode==6){
+        printf("This is a Non-Japanese Game Gear ROM. There's no checksum to calculate\n");
+      }else{
+        printf("This is a Non-Japanese (alt) Game Gear ROM. There's no checksum to calculate\n");
+      }
     }else{
-      //Technically this value should be $0200 or higher. Put in a check later?
-      printf("Processing SEGA Genesis/Mega Drive ROM\n");
+      printf(invalidROM);
     }
-    calculateROMChecksumSEGA16();
-    writeFile(outFile);
   }else{
-    printf("Header data not found at ROM location 0x100. Most likely not a Genesis/Mega Drive/32X ROM.\n");
+    printf(invalidROM);
   }
+
 }
 
-void calculateROMChecksumSEGA16(){
-  checksum16 c={0,(rom.data[0x018e]<<8)+rom.data[0x018f]};
-  unsigned int romSize=((rom.data[0x01a4]<<24)+(rom.data[0x01a5]<<16)+(rom.data[0x01a6]<<8)+rom.data[0x01a7])-((rom.data[0x01a0]<<24)+(rom.data[0x01a1]<<16)+(rom.data[0x01a2]<<8)+rom.data[0x01a3])+1;
+void calculateROMChecksumSEGA8(int size,int headerBase){
+  checksum16 c={0,rom.data[headerBase+0xa]+(rom.data[headerBase+0xb]<<8)};
+  printf("Processing checksum for Master System ROM\n");
+  printf("Calculating ROM checksum for %d bytes\n",size);
 
-  //ROM size in header might not match the actual ROM size. From what I've seen, checksums are calculated based on what the size defined in header.
+  for(int i=0;i<size;i++){
+    c.calc+=rom.data[i];
+  }
 
-  //A safety check, of sorts, *if* the ROM size defined in header is larger than 4096 Kb
-  romSize=romSize>MAX_ROM_SIZE?MAX_ROM_SIZE:romSize;
-
-  printf("Calculating ROM checksum for %d bytes\n",romSize);
-
-  for(int i=0x200;i<romSize;i+=2){
-    c.calc+=(rom.data[i]<<8);
-    c.calc+=rom.data[i+1];
+  if(size>=(headerBase+0xf)){
+    for(int i=headerBase;i<headerBase+0x10;i++){
+      c.calc-=rom.data[i];
+    }
   }
 
   if(c.calc==c.header){
@@ -65,8 +90,38 @@ void calculateROMChecksumSEGA16(){
   }else{
     printf("ROM checksum in header (0x%04x) does not match calculated checksum (0x%04x)\n",c.header,c.calc);
     printf("Updating data\n");
-    rom.data[0x018e]=(c.calc>>8);
-    rom.data[0x018f]=(c.calc&0xff);
+    rom.data[headerBase+0xa]=(c.calc&0xff);
+    rom.data[headerBase+0xb]=(c.calc>>8);
     rom.changed=1;
   }
+}
+
+unsigned int checkSEGA8Header(int headerBase){
+  char sega8Header[]={"TMR SEGA"};
+  for(int i=0;i<8;i++){
+    if(rom.data[headerBase+i]!=sega8Header[i]){
+      return 1;
+    }
+  }
+  return 0;
+}
+
+unsigned int checkROMSize(int sizeCode){
+  switch(sizeCode){
+    case 0:
+      return 0x40000; //256 Kb;
+    case 1:
+      return 0x80000; //512 Kb
+    case 0xa:
+      return 0x2000; //8 Kb
+    case 0xb:
+      return 0x4000; //16 Kb
+    case 0xc:
+      return 0x8000; //32 Kb
+    case 0xe:
+      return 0x10000; //64 Kb
+    case 0xf:
+      return 0x20000; //128 Kb
+  };
+  return 0;
 }
