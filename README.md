@@ -3,9 +3,15 @@
 # ChecksumInator
 A checksum calculator for 8-bit & 16-bit ROMs. Created for homebrew purposes.
 
+New in version 1.1.0
+  - As precaution, ChecksumInator now adds "_fixed" suffix to file name if no output file name is provided
+    - "filename.ext" -> "filename_fixed.ext"
+    - "filename" -> "filename_fixed"
+    - ".filename" -> "_fixed.filename"
+
 New in version 1.0.1
   - Added support for SEGA Genesis/Mega Drive/32X ROMs
-    - Admittedly, some officially released Genesis/MD games seem to have bad checksums.
+    - Admittedly, some officially released Genesis/MD games seem to have bad checksums
 
 New in version 0.8.0
   - Added basic support for SNES ROMs
