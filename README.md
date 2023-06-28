@@ -3,6 +3,9 @@
 # ChecksumInator
 A checksum calculator for 8-bit & 16-bit ROMs. Created for homebrew purposes.
 
+New in version 1.0.3
+  - Overhauled the code dealing with Mark III/Master System/Game Gear ROMs
+
 New in version 1.0.2
   - As precaution, ChecksumInator now adds "_fixed" suffix to file name if no output file name is provided
     - "filename.ext" -> "filename_fixed.ext"
